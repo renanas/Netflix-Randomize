@@ -10,38 +10,38 @@ class MongoDBConnection:
         self.db_name = db_name or os.getenv("DB_NAME", "netflix")
         self.collection_name = collection_name
         if not self.uri:
-            raise ValueError("MONGO_URI não definida no .env ou não fornecida")
+            raise ValueError("MONGO_URI not defined in .env or not provided")
         self.client = None
         self.db = None
         self.collection = None
 
     def connect(self):
-        """Estabelece a conexão com o MongoDB."""
+        """Establishes the connection with MongoDB."""
         try:
             self.client = MongoClient(self.uri)
             self.db = self.client[self.db_name]
             self.collection = self.db[self.collection_name]
-            # Testa a conexão
+            # Test the connection
             self.client.admin.command("ping")
-            print("Conectado com sucesso!")
+            print("Connected successfully!")
             return True
         except Exception as e:
-            print(f"Falha ao conectar: {e}")
+            print(f"Failed to connect: {e}")
             self.client = None
             self.db = None
             self.collection = None
             return False
 
     def disconnect(self):
-        """Fecha a conexão."""
+        """Closes the connection."""
         if self.client:
             self.client.close()
-            print("Conexão fechada.")
+            print("Connection closed.")
 
     def get_collection(self):
-        """Retorna a coleção."""
+        """Returns the collection."""
         return self.collection
 
     def get_db(self):
-        """Retorna o banco de dados."""
+        """Returns the database."""
         return self.db

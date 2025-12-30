@@ -14,9 +14,9 @@ class MovieRepository:
         """
         movie_id = movie_data.get("id")
         if not movie_id:
-            raise ValueError("movie_data need contains 'id' on TMDB")
+            raise ValueError("movie_data must contain 'id' from TMDB")
 
-        # Evita duplicados
+        # Avoid duplicates
         existing = self.collection.find_one({"id": movie_id})
         if existing:
             return existing["_id"]

@@ -16,7 +16,7 @@ class TestMongoDBConnection(unittest.TestCase):
 
     @patch('backend.database.mongodb_connection.MongoClient')
     def test_connect_success(self, mock_mongo_client):
-        """Testa conexão bem-sucedida."""
+        """Test successful connection."""
         mock_client = MagicMock()
         mock_mongo_client.return_value = mock_client
         mock_client.admin.command.return_value = {"ok": 1.0}
@@ -36,7 +36,7 @@ class TestMongoDBConnection(unittest.TestCase):
 
     @patch('backend.database.mongodb_connection.MongoClient')
     def test_connect_failure(self, mock_mongo_client):
-        """Testa falha na conexão."""
+        """Test connection failure."""
         mock_client = MagicMock()
         mock_mongo_client.return_value = mock_client
         mock_client.admin.command.side_effect = Exception("Connection failed")
@@ -49,7 +49,7 @@ class TestMongoDBConnection(unittest.TestCase):
         self.assertIsNone(self.connection.collection)
 
     def test_disconnect(self):
-        """Testa desconexão."""
+        """Test disconnection."""
         mock_client = MagicMock()
         self.connection.client = mock_client
 
@@ -58,7 +58,7 @@ class TestMongoDBConnection(unittest.TestCase):
         mock_client.close.assert_called_once()
 
     def test_get_collection(self):
-        """Testa obter coleção."""
+        """Test getting collection."""
         mock_collection = MagicMock()
         self.connection.collection = mock_collection
 
@@ -67,7 +67,7 @@ class TestMongoDBConnection(unittest.TestCase):
         self.assertEqual(result, mock_collection)
 
     def test_get_db(self):
-        """Testa obter banco de dados."""
+        """Test getting database."""
         mock_db = MagicMock()
         self.connection.db = mock_db
 

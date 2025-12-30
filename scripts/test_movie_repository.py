@@ -10,7 +10,7 @@ class TestMovieRepository(unittest.TestCase):
 
     @patch('backend.repository.movie_repository.MongoDBConnection')
     def test_save_movie_new(self, mock_conn_class):
-        """Testa salvar um filme novo."""
+        """Test saving a new movie."""
         mock_conn = MagicMock()
         mock_conn_class.return_value = mock_conn
         mock_db = MagicMock()
@@ -33,7 +33,7 @@ class TestMovieRepository(unittest.TestCase):
 
     @patch('backend.repository.movie_repository.MongoDBConnection')
     def test_save_movie_existing(self, mock_conn_class):
-        """Testa salvar um filme que já existe."""
+        """Test saving an existing movie."""
         mock_conn = MagicMock()
         mock_conn_class.return_value = mock_conn
         mock_db = MagicMock()
@@ -54,7 +54,7 @@ class TestMovieRepository(unittest.TestCase):
 
     @patch('backend.repository.movie_repository.MongoDBConnection')
     def test_save_movie_no_id(self, mock_conn_class):
-        """Testa salvar um filme sem ID."""
+        """Test saving a movie without ID."""
         mock_conn = MagicMock()
         mock_conn_class.return_value = mock_conn
         mock_db = MagicMock()
@@ -66,11 +66,11 @@ class TestMovieRepository(unittest.TestCase):
         movie_data = {"title": "Test Movie"}
         with self.assertRaises(ValueError) as context:
             repo.save_movie(movie_data)
-        self.assertIn("movie_data need contains 'id' on TMDB", str(context.exception))
+        self.assertIn("movie_data must contain 'id' from TMDB", str(context.exception))
 
     @patch('backend.repository.movie_repository.MongoDBConnection')
     def test_save_many_movies(self, mock_conn_class):
-        """Testa salvar múltiplos filmes."""
+        """Test saving multiple movies."""
         mock_conn = MagicMock()
         mock_conn_class.return_value = mock_conn
         mock_db = MagicMock()
@@ -96,7 +96,7 @@ class TestMovieRepository(unittest.TestCase):
 
     @patch('backend.repository.movie_repository.MongoDBConnection')
     def test_get_all_movies(self, mock_conn_class):
-        """Testa obter todos os filmes."""
+        """Test getting all movies."""
         mock_conn = MagicMock()
         mock_conn_class.return_value = mock_conn
         mock_db = MagicMock()
@@ -115,7 +115,7 @@ class TestMovieRepository(unittest.TestCase):
 
     @patch('backend.repository.movie_repository.MongoDBConnection')
     def test_get_movie_by_tmdb_id(self, mock_conn_class):
-        """Testa obter filme por ID do TMDB."""
+        """Test getting movie by TMDB ID."""
         mock_conn = MagicMock()
         mock_conn_class.return_value = mock_conn
         mock_db = MagicMock()
