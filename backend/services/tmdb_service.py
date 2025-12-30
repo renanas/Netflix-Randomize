@@ -2,7 +2,7 @@ import os
 import requests
 from dotenv import load_dotenv
 
-from backend.repository.movie_repository import save_many_movies
+from backend.repository.movie_repository import MovieRepository
 
 load_dotenv()
 TMDB_BEARER_TOKEN = os.getenv("TMDB_BEARER_TOKEN")
@@ -31,7 +31,8 @@ def fetch_popular_movies(page: int = 1):
     data = response.json()
     movies = data.get("results", [])
     
-    save_many_movies(movies)
+    repo = MovieRepository()
+    repo.save_many_movies(movies)
 
     return movies
 
@@ -53,4 +54,9 @@ def fetch_movie_details(movie_id: int):
     if response.status_code != 200:
         raise Exception(f"TMDB API request failed with status code {response.status_code}")
     
-    return response.json()
+    details = response.json()
+    
+    repo = MovieRepository()
+    repo.save_movie(details)
+    
+    return details
