@@ -1,0 +1,37 @@
+{
+  "info": {
+    "name": "Netflix-Randomize - User endpoints",
+    "_postman_id": "b9f6a2a2-0000-4d3e-9d6a-abcdef123456",
+    "description": "Collection with endpoint to create a user",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create User",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"user@example.com\",\n  \"senha\": \"password123\",\n  \"plano\": \"Premium\",\n  \"pais\": \"Brasil\",\n  \"profile\": {\n    \"nome_perfil\": \"João Silva\",\n    \"avatar\": \"avatar1.png\",\n    \"classificacao_etaria\": \"16+\",\n    \"idioma_preferido\": \"pt-BR\",\n    \"minha_lista\": [123, 456]\n  },\n  \"user_behavior\": {\n    \"historico_visualizacao\": [123, 789],\n    \"status_reproducao\": {\\\"123\\\": 1200, \\\"456\\\": 300},\n    \"avaliacao\": {\\\"123\\\": 1, \\\"456\\\": 0},\n    \"generos_favoritos\": [\"Ação\", \"Drama\"]\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/users"
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    }
+  ]
+}

@@ -10,13 +10,13 @@ class Profile(BaseModel):
 
 class UserBehavior(BaseModel):
     historico_visualizacao: List[int]  # IDs de filmes assistidos
-    status_reproducao: Dict[int, int]  # ID do filme: tempo parado (em segundos)
-    avaliacao: Dict[int, int]  # ID do filme: 0 (dislike) ou 1 (like)
+    status_reproducao: Dict[str, int]  # ID do filme (string): tempo parado (em segundos)
+    avaliacao: Dict[str, int]  # ID do filme (string): 0 (dislike) ou 1 (like)
     generos_favoritos: List[str]
 
 class User(BaseModel):
     email: EmailStr
-    senha: str  # Em produção, hash a senha!
+    senha: str  # Senha hasheada
     plano: str
     pais: str
     profile: Profile
@@ -37,3 +37,7 @@ class UserUpdate(BaseModel):
     pais: str = None
     profile: Profile = None
     user_behavior: UserBehavior = None
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    senha: str
