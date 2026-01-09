@@ -1,5 +1,6 @@
 from backend.database.mongodb_connection import MongoDBConnection
 from backend.models.user import User, UserCreate, UserUpdate
+from backend.utils.auth import get_password_hash, verify_password
 from bson import ObjectId
 from typing import List
 
@@ -15,6 +16,7 @@ class UserRepository:
         Create a new user in the database.
         """
         user_dict = user.dict()
+        user_dict['senha'] = get_password_hash(user_dict['senha'])
         result = self.collection.insert_one(user_dict)
         return str(result.inserted_id)
 
@@ -24,11 +26,14 @@ class UserRepository:
         """
         return self.collection.find_one({"_id": ObjectId(user_id)})
 
-    def get_user_by_email(self, email: str) -> dict:
+    def authenticate_user(self, email: str, password: str) -> dict:
         """
-        Get a user by email.
+        Authenticate a user by email and password.
         """
-        return self.collection.find_one({"email": email})
+        user = self.collection.find_one({"email": email})
+        if user and verify_password(password, user['senha']):
+            return user
+        return None
 
     def get_all_users(self) -> List[dict]:
         """
