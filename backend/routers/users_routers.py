@@ -16,15 +16,15 @@ def get_repo():
 def create_user(user: UserCreate):
     """
     Create a new user.
-    Valida automaticamente o email pelo Pydantic (EmailStr).
-    Verifica se o email já está cadastrado.
+    Automatically validates email format via Pydantic (EmailStr).
+    Checks if email is already registered.
     """
     try:
         repo = get_repo()
         user_id = repo.create_user(user)
         return {"message": "User created successfully", "user_id": user_id}
     except ValueError as e:
-        # Erro de email já existe
+        # Email already registered error
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=503, detail=f"Service unavailable: {str(e)}")

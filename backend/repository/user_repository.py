@@ -15,13 +15,13 @@ class UserRepository:
         """
         Create a new user in the database.
         """
-        # Verificar se o email já existe
+        # Check if email already exists
         existing_user = self.collection.find_one({"email": user.email})
         if existing_user:
-            raise ValueError(f"Email {user.email} já está cadastrado")
+            raise ValueError(f"Email {user.email} is already registered")
         
         user_dict = user.dict()
-        user_dict['senha'] = get_password_hash(user_dict['senha'])
+        user_dict['password'] = get_password_hash(user_dict['password'])
         result = self.collection.insert_one(user_dict)
         return str(result.inserted_id)
 
@@ -35,8 +35,8 @@ class UserRepository:
                 user['_id'] = str(user['_id'])
             except Exception:
                 pass
-        # Remove sensitive fields
-        user.pop('senha', None)
+        # Remove sensitive fields (password)
+        user.pop('password', None)
         return user
 
     def get_user_by_id(self, user_id: str) -> dict:
@@ -49,13 +49,13 @@ class UserRepository:
     def authenticate_user(self, email: str, password: str) -> dict:
         """
         Authenticate a user by email and password.
-        Raises ValueError se o email não existir ou a senha for inválida.
+        Raises ValueError if email is not found or password is invalid.
         """
         user = self.collection.find_one({"email": email})
         if not user:
-            raise ValueError(f"Email {email} não encontrado")
-        if not verify_password(password, user.get('senha', '')):
-            raise ValueError("Senha incorreta")
+            raise ValueError(f"Email {email} not found")
+        if not verify_password(password, user.get('password', '')):
+            raise ValueError("Invalid password")
         return self._sanitize_user(user)
 
     def get_all_users(self) -> List[dict]:
@@ -71,8 +71,8 @@ class UserRepository:
         """
         update_dict = {k: v for k, v in update_data.dict().items() if v is not None}
         # If updating password, hash it before saving
-        if 'senha' in update_dict and update_dict['senha'] is not None:
-            update_dict['senha'] = get_password_hash(update_dict['senha'])
+        if 'password' in update_dict and update_dict['password'] is not None:
+            update_dict['password'] = get_password_hash(update_dict['password'])
         if not update_dict:
             return False
         result = self.collection.update_one({"_id": ObjectId(user_id)}, {"$set": update_dict})

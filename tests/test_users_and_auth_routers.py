@@ -15,12 +15,12 @@ class FakeUserRepo:
         return uid
 
     def get_all_users(self):
-        return [{"_id": "u1", "email": "a@example.com", "plano": "basic"}]
+        return [{"_id": "u1", "email": "a@example.com", "plan": "basic"}]
 
     def get_user_by_id(self, user_id: str):
         if user_id == "notfound":
             return None
-        return {"_id": user_id, "email": "a@example.com", "plano": "basic"}
+        return {"_id": user_id, "email": "a@example.com", "plan": "basic"}
 
     def update_user(self, user_id: str, update_data):
         if user_id == "notfound":
@@ -67,21 +67,21 @@ auth_routers.user_repo = users_routers.user_repo
 def test_create_user_success():
     payload = {
         "email": "new@example.com",
-        "senha": "pass",
-        "plano": "basic",
-        "pais": "BR",
+        "password": "pass",
+        "plan": "basic",
+        "country": "BR",
         "profile": {
-            "nome_perfil": "Main",
+            "profile_name": "Main",
             "avatar": "a.png",
-            "classificacao_etaria": "12",
-            "idioma_preferido": "pt",
-            "minha_lista": []
+            "age_rating": "12",
+            "preferred_language": "en",
+            "my_list": []
         },
         "user_behavior": {
-            "historico_visualizacao": [],
-            "status_reproducao": {},
-            "avaliacao": {},
-            "generos_favoritos": []
+            "viewing_history": [],
+            "playback_status": {},
+            "ratings": {},
+            "favorite_genres": []
         }
     }
     resp = client.post("/users", json=payload)
@@ -93,21 +93,21 @@ def test_create_user_success():
 def test_create_user_conflict():
     payload = {
         "email": "exists@example.com",
-        "senha": "pass",
-        "plano": "basic",
-        "pais": "BR",
+        "password": "pass",
+        "plan": "basic",
+        "country": "BR",
         "profile": {
-            "nome_perfil": "Main",
+            "profile_name": "Main",
             "avatar": "a.png",
-            "classificacao_etaria": "12",
-            "idioma_preferido": "pt",
-            "minha_lista": []
+            "age_rating": "12",
+            "preferred_language": "en",
+            "my_list": []
         },
         "user_behavior": {
-            "historico_visualizacao": [],
-            "status_reproducao": {},
-            "avaliacao": {},
-            "generos_favoritos": []
+            "viewing_history": [],
+            "playback_status": {},
+            "ratings": {},
+            "favorite_genres": []
         }
     }
     resp = client.post("/users", json=payload)
@@ -138,6 +138,6 @@ def test_delete_user_not_found():
 
 
 def test_login_failure():
-    payload = {"email": "bad@example.com", "senha": "x"}
+    payload = {"email": "bad@example.com", "password": "x"}
     resp = client.post("/login", json=payload)
     assert resp.status_code == 401

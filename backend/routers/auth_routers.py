@@ -18,19 +18,19 @@ def get_repo():
 def login(login_data: LoginRequest):
     """
     Authenticate a user and return an access token.
-    Valida automaticamente o email pelo Pydantic (EmailStr).
-    Verifica se o usuário existe e se a senha está correta.
+    Automatically validates email format via Pydantic (EmailStr).
+    Verifies user exists and password is correct.
     """
     try:
         repo = get_repo()
-        user = repo.authenticate_user(login_data.email, login_data.senha)
+        user = repo.authenticate_user(login_data.email, login_data.password)
         access_token_expires = timedelta(minutes=30)
         access_token = create_access_token(
             data={"sub": str(user["_id"])}, expires_delta=access_token_expires
         )
         return {"access_token": access_token, "token_type": "bearer"}
     except ValueError as e:
-        # Email não encontrado ou senha incorreta
+        # Email not found or invalid password
         raise HTTPException(status_code=401, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=503, detail=f"Service unavailable: {str(e)}")

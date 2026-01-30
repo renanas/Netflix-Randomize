@@ -3,8 +3,8 @@ from datetime import datetime, timedelta
 import jwt
 from typing import Optional
 
-# Configurações para JWT
-SECRET_KEY = "your-secret-key"  # TODO: Mudar para uma chave segura em produção
+# JWT configuration
+SECRET_KEY = "your-secret-key"  # TODO: Change to a secure key in production
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
