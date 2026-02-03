@@ -2,6 +2,7 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta
 import jwt
 from typing import Optional
+from fastapi import HTTPException, Header
 
 # JWT configuration
 SECRET_KEY = "your-secret-key"  # TODO: Change to a secure key in production
@@ -34,3 +35,26 @@ def decode_access_token(token: str):
         return None
     except jwt.InvalidTokenError:
         return None
+
+def verify_token(authorization: Optional[str] = Header(None)) -> str:
+    """
+    Verify JWT token from Authorization header.
+    Returns user_id if valid, raises HTTPException if invalid.
+    
+    Expected header format: "Authorization: Bearer <token>"
+    """
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Missing authorization header")
+    
+    # Expected format: "Bearer <token>"
+    parts = authorization.split()
+    if len(parts) != 2 or parts[0].lower() != "bearer":
+        raise HTTPException(status_code=401, detail="Invalid authorization header format")
+    
+    token = parts[1]
+    payload = decode_access_token(token)
+    
+    if not payload or "sub" not in payload:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+    
+    return payload["sub"]
