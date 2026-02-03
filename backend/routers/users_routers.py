@@ -4,18 +4,30 @@ from backend.repository.user_repository import UserRepository
 
 router = APIRouter()
 
-user_repo = UserRepository()
+user_repo = None
+
+def get_repo():
+    global user_repo
+    if user_repo is None:
+        user_repo = UserRepository()
+    return user_repo
 
 @router.post("/users", response_model=dict)
 def create_user(user: UserCreate):
     """
     Create a new user.
+    Automatically validates email format via Pydantic (EmailStr).
+    Checks if email is already registered.
     """
     try:
-        user_id = user_repo.create_user(user)
+        repo = get_repo()
+        user_id = repo.create_user(user)
         return {"message": "User created successfully", "user_id": user_id}
-    except Exception as e:
+    except ValueError as e:
+        # Email already registered error
         raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Service unavailable: {str(e)}")
 
 @router.get("/users", response_model=list)
 def get_all_users():
@@ -23,10 +35,13 @@ def get_all_users():
     Get all users.
     """
     try:
-        users = user_repo.get_all_users()
+        repo = get_repo()
+        users = repo.get_all_users()
         return users
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=503, detail=str(e))
 
 @router.get("/users/{user_id}", response_model=dict)
 def get_user(user_id: str):
@@ -34,12 +49,15 @@ def get_user(user_id: str):
     Get a user by ID.
     """
     try:
-        user = user_repo.get_user_by_id(user_id)
+        repo = get_repo()
+        user = repo.get_user_by_id(user_id)
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
         return user
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=503, detail=str(e))
 
 @router.put("/users/{user_id}", response_model=dict)
 def update_user(user_id: str, update_data: UserUpdate):
@@ -47,12 +65,15 @@ def update_user(user_id: str, update_data: UserUpdate):
     Update a user by ID.
     """
     try:
-        updated = user_repo.update_user(user_id, update_data)
+        repo = get_repo()
+        updated = repo.update_user(user_id, update_data)
         if not updated:
             raise HTTPException(status_code=404, detail="User not found or no changes made")
         return {"message": "User updated successfully"}
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=503, detail=str(e))
 
 @router.delete("/users/{user_id}", response_model=dict)
 def delete_user(user_id: str):
@@ -60,9 +81,12 @@ def delete_user(user_id: str):
     Soft delete a user by ID.
     """
     try:
-        deleted = user_repo.delete_user(user_id)
+        repo = get_repo()
+        deleted = repo.delete_user(user_id)
         if not deleted:
             raise HTTPException(status_code=404, detail="User not found")
         return {"message": "User deleted successfully"}
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=503, detail=str(e))

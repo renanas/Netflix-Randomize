@@ -1,8 +1,10 @@
 from pymongo import MongoClient
 import os
 from dotenv import load_dotenv
+import logging
 
 load_dotenv()
+logger = logging.getLogger(__name__)
 
 class MongoDBConnection:
     def __init__(self, uri=None, db_name=None, collection_name="movies"):
@@ -23,10 +25,10 @@ class MongoDBConnection:
             self.collection = self.db[self.collection_name]
             # Test the connection
             self.client.admin.command("ping")
-            print("Connected successfully!")
+            logger.info("Connected to MongoDB successfully")
             return True
         except Exception as e:
-            print(f"Failed to connect: {e}")
+            logger.exception("Failed to connect to MongoDB")
             self.client = None
             self.db = None
             self.collection = None
@@ -36,7 +38,7 @@ class MongoDBConnection:
         """Closes the connection."""
         if self.client:
             self.client.close()
-            print("Connection closed.")
+            logger.info("MongoDB connection closed")
 
     def get_collection(self):
         """Returns the collection."""

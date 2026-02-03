@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from backend.services.tmdb_service import fetch_popular_movies, fetch_movie_details
 
 router = APIRouter()
@@ -12,7 +12,7 @@ def get_popular_movies(page: int = 1):
         movies = fetch_popular_movies(page)
         return {"message": f"Fetched and saved {len(movies)} movies", "movies": movies}
     except Exception as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/movie/{movie_id}")
 def get_movie_details(movie_id: int):
@@ -23,4 +23,4 @@ def get_movie_details(movie_id: int):
         details = fetch_movie_details(movie_id)
         return details
     except Exception as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=500, detail=str(e))

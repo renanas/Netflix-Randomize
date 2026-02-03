@@ -6,24 +6,34 @@ from datetime import timedelta
 
 router = APIRouter()
 
-user_repo = UserRepository()
+user_repo = None
+
+def get_repo():
+    global user_repo
+    if user_repo is None:
+        user_repo = UserRepository()
+    return user_repo
 
 @router.post("/login", response_model=dict)
 def login(login_data: LoginRequest):
     """
     Authenticate a user and return an access token.
+    Automatically validates email format via Pydantic (EmailStr).
+    Verifies user exists and password is correct.
     """
     try:
-        user = user_repo.authenticate_user(login_data.email, login_data.senha)
-        if not user:
-            raise HTTPException(status_code=401, detail="Invalid email or password")
+        repo = get_repo()
+        user = repo.authenticate_user(login_data.email, login_data.password)
         access_token_expires = timedelta(minutes=30)
         access_token = create_access_token(
             data={"sub": str(user["_id"])}, expires_delta=access_token_expires
         )
         return {"access_token": access_token, "token_type": "bearer"}
+    except ValueError as e:
+        # Email not found or invalid password
+        raise HTTPException(status_code=401, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=503, detail=f"Service unavailable: {str(e)}")
 
 @router.post("/logout", response_model=dict)
 def logout():
