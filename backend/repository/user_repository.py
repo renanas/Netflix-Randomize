@@ -77,6 +77,17 @@ class UserRepository:
             return False
         result = self.collection.update_one({"_id": ObjectId(user_id)}, {"$set": update_dict})
         return result.modified_count > 0
+    
+    def add_user_rating(self, user_id: str, tmdb_id: int, score: int) -> bool:
+        # Usando a Dot Notation para acessar user_behavior.ratings.ID
+        # Aqui definimos o valor como True, ou a nota numérica
+        field_path = f"user_behavior.ratings.{tmdb_id}"
+        
+        result = self.collection.update_one(
+            {"_id": ObjectId(user_id)},
+            {"$set": {field_path: score}} # Ou a nota que desejar
+        )
+        return result.modified_count > 0
 
     def delete_user(self, user_id: str) -> bool:
         """
