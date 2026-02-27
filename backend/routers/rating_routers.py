@@ -13,7 +13,7 @@ rating_service = None
 def get_service():
     global rating_service
     if rating_service is None:
-        rating_service = RatingService()
+        rating_service = RatingService()  
     return rating_service
 
 
