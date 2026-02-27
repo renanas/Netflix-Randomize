@@ -2,13 +2,16 @@ from backend.database.mongodb_connection import MongoDBConnection
 from backend.models.user import User, UserCreate, UserUpdate
 from backend.utils.auth import get_password_hash, verify_password
 from bson import ObjectId
-from typing import List
+from typing import List, Optional
 
 class UserRepository:
     def __init__(self):
         self.mongo_conn = MongoDBConnection()
-        self.mongo_conn.connect()
+        if not self.mongo_conn.connect():
+            raise RuntimeError("Failed to connect to MongoDB")
         self.db = self.mongo_conn.get_db()
+        if self.db is None:
+            raise RuntimeError("Database connection failed: db is None")
         self.collection = self.db["users"]
 
     def create_user(self, user: UserCreate) -> str:
@@ -25,7 +28,7 @@ class UserRepository:
         result = self.collection.insert_one(user_dict)
         return str(result.inserted_id)
 
-    def _sanitize_user(self, user: dict) -> dict:
+    def _sanitize_user(self, user: Optional[dict]) -> Optional[dict]:
         if not user:
             return None
         # Convert ObjectId to string
@@ -39,14 +42,14 @@ class UserRepository:
         user.pop('password', None)
         return user
 
-    def get_user_by_id(self, user_id: str) -> dict:
+    def get_user_by_id(self, user_id: str) -> Optional[dict]:
         """
         Get a user by ID.
         """
         user = self.collection.find_one({"_id": ObjectId(user_id)})
         return self._sanitize_user(user)
 
-    def authenticate_user(self, email: str, password: str) -> dict:
+    def authenticate_user(self, email: str, password: str) -> Optional[dict]:
         """
         Authenticate a user by email and password.
         Raises ValueError if email is not found or password is invalid.
@@ -63,7 +66,7 @@ class UserRepository:
         Get all users.
         """
         users = list(self.collection.find())
-        return [self._sanitize_user(u) for u in users]
+        return [sanitized for u in users if (sanitized := self._sanitize_user(u)) is not None]
 
     def update_user(self, user_id: str, update_data: UserUpdate) -> bool:
         """
