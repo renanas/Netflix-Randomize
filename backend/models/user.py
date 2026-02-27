@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 class Profile(BaseModel):
     profile_name: str
@@ -31,13 +31,20 @@ class UserCreate(BaseModel):
     user_behavior: UserBehavior
 
 class UserUpdate(BaseModel):
-    email: EmailStr = None
-    password: str = None
-    plan: str = None
-    country: str = None
-    profile: Profile = None
-    user_behavior: UserBehavior = None
+    email: Optional[EmailStr] = None
+    password: Optional[str] = None
+    plan: Optional[str] = None
+    country: Optional[str] = None
+    profile: Optional[Profile] = None
+    user_behavior: Optional[UserBehavior] = None
 
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
+
+class PlayMovieRequest(BaseModel):
+    tmdb_id: int
+
+class PauseMovieRequest(BaseModel):
+    tmdb_id: int
+    seconds: int

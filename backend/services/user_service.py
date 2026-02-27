@@ -1,5 +1,6 @@
 from backend.models.user import UserCreate, UserUpdate
 from backend.repository.user_repository import UserRepository
+from typing import Optional
 
 class UserService:
     def __init__(self):
@@ -17,7 +18,7 @@ class UserService:
         """
         return self.user_repo.get_all_users()
 
-    def get_user_by_id(self, user_id: str) -> dict:
+    def get_user_by_id(self, user_id: str) -> Optional[dict]:
         """
         Get a user by ID via repository.
         """
@@ -40,3 +41,21 @@ class UserService:
         Add a rating to a user via repository.
         """
         return self.user_repo.add_user_rating(user_id, tmdb_id, score)
+
+    def add_to_viewing_history(self, user_id: str, tmdb_id: int) -> bool:
+        """
+        Add a movie to user's viewing history via repository.
+        """
+        return self.user_repo.add_to_viewing_history(user_id, tmdb_id)
+
+    def remove_from_viewing_history(self, user_id: str, tmdb_id: int) -> bool:
+        """
+        Remove a movie from user's viewing history via repository.
+        """
+        return self.user_repo.remove_from_viewing_history(user_id, tmdb_id)
+
+    def update_playback_status(self, user_id: str, tmdb_id: int, seconds: int) -> bool:
+        """
+        Update playback status for a movie (pause time in seconds) via repository.
+        """
+        return self.user_repo.update_playback_status(user_id, tmdb_id, seconds)

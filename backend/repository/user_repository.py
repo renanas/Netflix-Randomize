@@ -98,3 +98,37 @@ class UserRepository:
         """
         result = self.collection.update_one({"_id": ObjectId(user_id)}, {"$set": {"deleted": True}})
         return result.modified_count > 0
+
+    def add_to_viewing_history(self, user_id: str, tmdb_id: int) -> bool:
+        """
+        Add a movie to user's viewing history.
+        Avoids duplicates by checking if already exists.
+        """
+        field_path = "user_behavior.viewing_history"
+        result = self.collection.update_one(
+            {"_id": ObjectId(user_id), f"{field_path}": {"$ne": tmdb_id}},
+            {"$push": {field_path: tmdb_id}}
+        )
+        return result.modified_count > 0 or result.matched_count > 0
+
+    def remove_from_viewing_history(self, user_id: str, tmdb_id: int) -> bool:
+        """
+        Remove a movie from user's viewing history.
+        """
+        field_path = "user_behavior.viewing_history"
+        result = self.collection.update_one(
+            {"_id": ObjectId(user_id)},
+            {"$pull": {field_path: tmdb_id}}
+        )
+        return result.modified_count > 0
+
+    def update_playback_status(self, user_id: str, tmdb_id: int, seconds: int) -> bool:
+        """
+        Update playback status for a movie (pause time in seconds).
+        """
+        field_path = f"user_behavior.playback_status.{tmdb_id}"
+        result = self.collection.update_one(
+            {"_id": ObjectId(user_id)},
+            {"$set": {field_path: seconds}}
+        )
+        return result.modified_count > 0
