@@ -4,9 +4,7 @@ from backend.services.watchlist_service import WatchlistService
 from backend.models.watchlist import (
     AddMovieRequest,
     WatchlistResponse,
-    WatchlistDetailResponse,
-    CheckMovieResponse,
-    RemoveMovieResponse
+    WatchlistDetailResponse
 )
 from backend.utils.auth import verify_token
 

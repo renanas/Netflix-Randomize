@@ -1,16 +1,16 @@
 from fastapi import APIRouter, HTTPException
 from backend.models.user import UserCreate, UserUpdate
-from backend.repository.user_repository import UserRepository
+from backend.services.user_service import UserService
 
 router = APIRouter()
 
-user_repo = None
+user_service = None
 
-def get_repo():
-    global user_repo
-    if user_repo is None:
-        user_repo = UserRepository()
-    return user_repo
+def get_service():
+    global user_service
+    if user_service is None:
+        user_service = UserService()
+    return user_service
 
 @router.post("/users", response_model=dict)
 def create_user(user: UserCreate):
@@ -20,8 +20,8 @@ def create_user(user: UserCreate):
     Checks if email is already registered.
     """
     try:
-        repo = get_repo()
-        user_id = repo.create_user(user)
+        service = get_service()
+        user_id = service.create_user(user)
         return {"message": "User created successfully", "user_id": user_id}
     except ValueError as e:
         # Email already registered error
@@ -35,8 +35,8 @@ def get_all_users():
     Get all users.
     """
     try:
-        repo = get_repo()
-        users = repo.get_all_users()
+        service = get_service()
+        users = service.get_all_users()
         return users
     except HTTPException:
         raise
@@ -49,8 +49,8 @@ def get_user(user_id: str):
     Get a user by ID.
     """
     try:
-        repo = get_repo()
-        user = repo.get_user_by_id(user_id)
+        service = get_service()
+        user = service.get_user_by_id(user_id)
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
         return user
@@ -65,8 +65,8 @@ def update_user(user_id: str, update_data: UserUpdate):
     Update a user by ID.
     """
     try:
-        repo = get_repo()
-        updated = repo.update_user(user_id, update_data)
+        service = get_service()
+        updated = service.update_user(user_id, update_data)
         if not updated:
             raise HTTPException(status_code=404, detail="User not found or no changes made")
         return {"message": "User updated successfully"}
@@ -81,8 +81,8 @@ def delete_user(user_id: str):
     Soft delete a user by ID.
     """
     try:
-        repo = get_repo()
-        deleted = repo.delete_user(user_id)
+        service = get_service()
+        deleted = service.delete_user(user_id)
         if not deleted:
             raise HTTPException(status_code=404, detail="User not found")
         return {"message": "User deleted successfully"}
