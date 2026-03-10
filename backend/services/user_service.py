@@ -9,6 +9,10 @@ class UserService:
     def create_user(self, user: UserCreate) -> str:
         """
         Create a new user via repository.
+
+        The payload now includes nested preferences and a richly structured
+        viewing history entry list. The service simply passes the Pydantic
+        model along; hashing of the password is handled by the repository.
         """
         return self.user_repo.create_user(user)
 

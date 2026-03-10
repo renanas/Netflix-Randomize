@@ -1,6 +1,10 @@
 import sys
+import os
 import types
 from fastapi.testclient import TestClient
+
+# ensure project root is available for backend imports
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Inject fake repository modules before importing the app to avoid real DB connections
 fake_user_repo_mod = types.ModuleType("backend.repository.user_repository")
@@ -66,22 +70,34 @@ auth_routers.user_repo = users_routers.user_repo
 
 def test_create_user_success():
     payload = {
-        "email": "new@example.com",
-        "password": "pass",
-        "plan": "basic",
-        "country": "BR",
+        "email": "renanas@example.com",
+        "password": "renanas",
+        "plan": "Premium",
+        "country": "Brasil",
+
         "profile": {
-            "profile_name": "Main",
-            "avatar": "a.png",
-            "age_rating": "12",
-            "preferred_language": "en",
-            "my_list": []
+            "profile_name": "Renan Silva",
+            "avatar": "avatar5.png",
+            "age_rating": "18+",
+            "preferred_language": "pt-BR",
+
+            "preferences": {
+                "favorite_genres": [35, 18]
+            },
+
+            "my_list": [789, 1122]
         },
+
         "user_behavior": {
-            "viewing_history": [],
-            "playback_status": {},
-            "ratings": {},
-            "favorite_genres": []
+            "viewing_history": [
+                {"movie_id": 1233, "watched_at": "2026-03-09T20:00:00"}
+            ],
+
+            "playback_status": {"789": 152},
+
+            "ratings": {"789": 1, "1122": 0},
+
+            "ignored_movies": []
         }
     }
     resp = client.post("/users", json=payload)
@@ -94,20 +110,23 @@ def test_create_user_conflict():
     payload = {
         "email": "exists@example.com",
         "password": "pass",
-        "plan": "basic",
-        "country": "BR",
+        "plan": "Premium",
+        "country": "Brasil",
+
         "profile": {
-            "profile_name": "Main",
-            "avatar": "a.png",
+            "profile_name": "Existing User",
+            "avatar": "avatar.png",
             "age_rating": "12",
             "preferred_language": "en",
+            "preferences": {"favorite_genres": []},
             "my_list": []
         },
+
         "user_behavior": {
             "viewing_history": [],
             "playback_status": {},
             "ratings": {},
-            "favorite_genres": []
+            "ignored_movies": []
         }
     }
     resp = client.post("/users", json=payload)
