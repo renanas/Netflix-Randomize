@@ -29,7 +29,9 @@ class TestMovieRepository(unittest.TestCase):
 
         self.assertEqual(result, "inserted_id_123")
         mock_collection.find_one.assert_called_once_with({"id": 123})
-        mock_collection.insert_one.assert_called_once_with(movie_data)
+        # ensure the repository copied the dict; we can't rely on object equality
+        mock_collection.insert_one.assert_called_once()
+        self.assertNotIn("_id", movie_data, "original movie_data should not be mutated")
 
     @patch('backend.repository.movie_repository.MongoDBConnection')
     def test_save_movie_existing(self, mock_conn_class):
@@ -93,6 +95,9 @@ class TestMovieRepository(unittest.TestCase):
 
         self.assertEqual(result, ["id1", "id2"])
         self.assertEqual(mock_collection.insert_one.call_count, 2)
+        # the original movie dicts shouldn't have been mutated by PyMongo
+        for m in movies:
+            self.assertNotIn("_id", m)
 
     @patch('backend.repository.movie_repository.MongoDBConnection')
     def test_get_all_movies(self, mock_conn_class):

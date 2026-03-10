@@ -1,6 +1,10 @@
 import sys
+import os
 import types
 from fastapi.testclient import TestClient
+
+# ensure project root is on path for imports of backend package
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Stub repository modules to avoid DB connection during import
 fake_user_repo_mod = types.ModuleType("backend.repository.user_repository")

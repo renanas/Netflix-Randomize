@@ -44,6 +44,9 @@ This project is a Netflix clone API that allows fetching movie data from TMDB (T
    MONGO_URI=mongodb+srv://yourusername:yourpassword@cluster.mongodb.net/?appName=Cluster
    DB_NAME=netflix
    TMDB_BEARER_TOKEN=your_tmdb_bearer_token
+   # Optional, prefix for all API routes. e.g. "/api" or "v1".
+   # Do not end with '/'.
+   API_PREFIX=/api
    ```
 
 ## Usage
