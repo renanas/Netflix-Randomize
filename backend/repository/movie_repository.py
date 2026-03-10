@@ -21,7 +21,9 @@ class MovieRepository:
         if existing:
             return existing["_id"]
 
-        result = self.collection.insert_one(movie_data)
+        # Make a shallow copy so the caller's dictionary isn't mutated by PyMongo
+        data_to_insert = movie_data.copy()
+        result = self.collection.insert_one(data_to_insert)
         return result.inserted_id
 
     def save_many_movies(self, movies_list):

@@ -32,8 +32,12 @@ def fetch_popular_movies(page: int = 1):
     movies = data.get("results", [])
     
     repo = MovieRepository()
-    repo.save_many_movies(movies)
+    # save copies so the original list isn't modified (PyMongo may add "_id")
+    repo.save_many_movies([m.copy() for m in movies])
 
+    # ensure no _id fields are present in what we return to the client
+    for m in movies:
+        m.pop("_id", None)
     return movies
 
 def fetch_movie_details(movie_id: int):
@@ -57,6 +61,9 @@ def fetch_movie_details(movie_id: int):
     details = response.json()
     
     repo = MovieRepository()
-    repo.save_movie(details)
+    # use a copy to prevent mutation of the original dict by PyMongo
+    repo.save_movie(details.copy())
+    # drop any internal MongoDB id that might have been added, just in case
+    details.pop("_id", None)
     
     return details
