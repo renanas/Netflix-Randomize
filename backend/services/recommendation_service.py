@@ -1,6 +1,17 @@
 import sys
 import os
+import logging
 from backend.services.user_service import UserService
+
+# Configure logger
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter('[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 
 # Add recommendation_system to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
@@ -30,13 +41,17 @@ class RecommendationService:
         try:
             from recommendation_system.recommend import recommend_similar_movies_with_data
             
+            logger.info(f"[KNN_BUILD] Starting recommendation building for user '{user_id}' (limit={limit})")
+            
             # Get user data via injected UserService (allows test mocking)
             user = self.user_service.get_user_by_id(user_id)
             if not user:
                 # No user found: return popular movies
+                logger.info(f"[KNN_BUILD] User '{user_id}' not found - returning popular movies (new user)")
                 pop_movies = self.movie_repository.find_movies(limit=limit)
                 movie_ids = [m.get("id") for m in pop_movies if m and m.get("id")]
                 self.recommendation_repository.upsert_recommendations(user_id, movie_ids[:limit])
+                logger.info(f"[KNN_BUILD] ✨ Using popular movies fallback - {len(movie_ids[:limit])} movies for user '{user_id}'")
                 return pop_movies[:limit]
             
             # Extract viewing history
@@ -58,12 +73,16 @@ class RecommendationService:
                 except (ValueError, TypeError):
                     exclude_ids.add(rating_id)
             
+            logger.info(f"[KNN_BUILD] User '{user_id}' has {len(watched_movie_ids)} watched movies and {len(ratings)} ratings")
+            
             # If user has no history, return popular movies
             if not watched_movie_ids:
+                logger.info(f"[KNN_BUILD] User '{user_id}' has no viewing history - returning popular movies")
                 pop_movies = self.movie_repository.find_movies(limit=limit)
                 movie_ids = [m.get("id") for m in pop_movies if m and m.get("id") and m.get("id") not in exclude_ids][:limit]
                 self.recommendation_repository.upsert_recommendations(user_id, movie_ids)
                 pop_movies_by_id = {m.get("id"): m for m in pop_movies if m and m.get("id")}
+                logger.info(f"[KNN_BUILD] ✨ Using popular movies fallback (cold start) - {len(movie_ids)} movies for user '{user_id}'")
                 return [pop_movies_by_id[mid] for mid in movie_ids if mid in pop_movies_by_id]
             
             # Fetch the watched movies from repository
@@ -72,18 +91,22 @@ class RecommendationService:
             
             if not watched_movies:
                 # No watched movies found in repo (shouldn't happen), return popular
+                logger.warning(f"[KNN_BUILD] User '{user_id}' has history but no watched movies found in repo - returning popular movies")
                 pop_movies = self.movie_repository.find_movies(limit=limit)
                 movie_ids = [m.get("id") for m in pop_movies if m and m.get("id") and m.get("id") not in exclude_ids][:limit]
                 self.recommendation_repository.upsert_recommendations(user_id, movie_ids)
                 return pop_movies[:limit]
             
             # Use KNN to find similar movies
+            logger.info(f"[KNN_BUILD] 🤖 Invoking KNN model for user '{user_id}' with {len(watched_movies)} reference movies")
             movie_ids = recommend_similar_movies_with_data(
                 reference_movies=watched_movies,
                 exclude_ids=exclude_ids,
                 n_recommendations=limit,
                 return_distances=False
             )
+            
+            logger.info(f"[KNN_BUILD] 🤖 KNN model returned {len(movie_ids)} movie IDs for user '{user_id}'")
             
             # Fetch movie details from repository
             candidates = self.movie_repository.find_movies({"id": {"$in": movie_ids}}, limit=len(movie_ids))
@@ -92,9 +115,11 @@ class RecommendationService:
             
             # Cache results
             self.recommendation_repository.upsert_recommendations(user_id, movie_ids)
+            logger.info(f"[KNN_BUILD] ✅ Successfully generated {len(recommendations)} recommendations for user '{user_id}' (cached)")
             
             return recommendations
         except Exception as e:
+            logger.error(f"[KNN_BUILD] ❌ Error generating recommendations for user '{user_id}': {str(e)}")
             raise RuntimeError(f"KNN recommendation failed: {e}")
 
 
@@ -134,13 +159,21 @@ class RecommendationService:
         
         # Force refresh
         if force_refresh:
-            return self.build_recommendations_for_user(user_id, limit=limit)
+            logger.info(f"[RECOMMENDATIONS] Force refresh requested for user '{user_id}' - generating new recommendations via KNN model")
+            recommendations = self.build_recommendations_for_user(user_id, limit=limit)
+            logger.info(f"[RECOMMENDATIONS] KNN model generated {len(recommendations)} recommendations for user '{user_id}'")
+            return recommendations
         
         # Try cached first
+        logger.info(f"[RECOMMENDATIONS] Attempting to fetch cached recommendations for user '{user_id}'")
         cached = self.get_cached_recommendations(user_id, limit=limit)
         if cached and len(cached) >= min_recommendations:
+            logger.info(f"[RECOMMENDATIONS] ✅ Cache HIT: Found {len(cached)} cached recommendations for user '{user_id}'")
             return cached[:limit]
         
         # Cold start or cache expired: generate new recommendations via KNN
-        return self.build_recommendations_for_user(user_id, limit=limit)
+        logger.info(f"[RECOMMENDATIONS] ❌ Cache MISS: No cached recommendations found for user '{user_id}' - generating via KNN model")
+        recommendations = self.build_recommendations_for_user(user_id, limit=limit)
+        logger.info(f"[RECOMMENDATIONS] KNN model generated {len(recommendations)} recommendations for user '{user_id}' (cold start)")
+        return recommendations
 

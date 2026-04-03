@@ -5,6 +5,7 @@ import joblib
 from sklearn.preprocessing import StandardScaler
 import logging
 from dotenv import load_dotenv
+from typing import Optional
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -62,7 +63,12 @@ def get_mongo_connection():
 
 def build_movie_feature_vector(movie: dict, metadata: dict) -> np.ndarray:
     """Build feature vector for a single movie."""
-    genre_id_to_index = metadata['genre_id_to_index']
+    if metadata is None:
+        raise ValueError("Metadata is None - model may not be loaded correctly")
+    
+    genre_id_to_index = metadata.get('genre_id_to_index', {})
+    if not genre_id_to_index:
+        raise ValueError("genre_id_to_index not found in metadata")
     
     # One-hot encode genres
     genre_feature = np.zeros(len(genre_id_to_index))
@@ -88,7 +94,7 @@ def build_movie_feature_vector(movie: dict, metadata: dict) -> np.ndarray:
 
 def recommend_similar_movies_with_data(
     reference_movies: list,
-    exclude_ids: set = None,
+    exclude_ids: Optional[set] = None, 
     n_recommendations: int = 20,
     return_distances: bool = False
 ):
@@ -106,7 +112,14 @@ def recommend_similar_movies_with_data(
         List of recommended movie IDs (or tuples with distances)
     """
     knn_model, scaler, metadata = load_model()
-    movie_ids = metadata['movie_ids']
+    
+    if knn_model is None or scaler is None or metadata is None:
+        raise RuntimeError("Failed to load KNN model, scaler, or metadata")
+    
+    movie_ids = metadata.get('movie_ids', [])
+    if not movie_ids:
+        raise ValueError("movie_ids not found in metadata")
+    
     movie_id_to_idx = {mid: idx for idx, mid in enumerate(movie_ids)}
     
     if exclude_ids is None:
@@ -144,7 +157,7 @@ def recommend_similar_movies_with_data(
 
 def recommend_similar_movies(
     reference_movie_ids: list,
-    exclude_ids: set = None,
+    exclude_ids: Optional[set] = None,
     n_recommendations: int = 20,
     return_distances: bool = False
 ):
@@ -161,7 +174,14 @@ def recommend_similar_movies(
         List of recommended movie IDs (or tuples with distances)
     """
     knn_model, scaler, metadata = load_model()
-    movie_ids = metadata['movie_ids']
+    
+    if knn_model is None or scaler is None or metadata is None:
+        raise RuntimeError("Failed to load KNN model, scaler, or metadata")
+    
+    movie_ids = metadata.get('movie_ids', [])
+    if not movie_ids:
+        raise ValueError("movie_ids not found in metadata")
+    
     movie_id_to_idx = {mid: idx for idx, mid in enumerate(movie_ids)}
     
     db = get_mongo_connection()
@@ -219,25 +239,27 @@ def recommend_for_user(user_id: str, n_recommendations: int = 20):
     if not user:
         raise ValueError(f"User {user_id} not found")
     
-    user_behavior = user.get("user_behavior", {}) or {}
-    viewing_history = user_behavior.get("viewing_history", []) or []
-    ratings = user_behavior.get("ratings", {}) or {}
+    user_behavior = user.get("user_behavior") or {}
+    viewing_history = user_behavior.get("viewing_history") or []
+    ratings = user_behavior.get("ratings") or {}
     
     # Extract movie IDs from history
     watched_movie_ids = []
-    for item in viewing_history:
-        if isinstance(item, dict) and "movie_id" in item:
-            watched_movie_ids.append(item["movie_id"])
+    if isinstance(viewing_history, list):
+        for item in viewing_history:
+            if isinstance(item, dict) and "movie_id" in item:
+                watched_movie_ids.append(item["movie_id"])
     
     # Build exclude set
     exclude_ids = set(watched_movie_ids)
-    exclude_ids.update(ratings.keys())
+    if isinstance(ratings, dict):
+        exclude_ids.update(ratings.keys())
     
     if not watched_movie_ids:
         # If user has no history, return popular movies
         movies_collection = db["movies"]
         popular = list(movies_collection.find({}).sort("popularity", -1).limit(n_recommendations))
-        return [m["id"] for m in popular if m.get("id") not in exclude_ids][:n_recommendations]
+        return [m.get("id") for m in popular if m and m.get("id") and m.get("id") not in exclude_ids][:n_recommendations]
     
     # Use KNN to find similar movies
     recommendations = recommend_similar_movies(
