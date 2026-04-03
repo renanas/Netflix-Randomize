@@ -35,17 +35,26 @@ class MovieRepository:
             saved_ids.append(self.save_movie(movie))
         return saved_ids
 
+    def _sanitize_movie(self, movie: dict) -> dict:
+        if not movie:
+            return None
+        sanitized = dict(movie)
+        if "_id" in sanitized:
+            sanitized["_id"] = str(sanitized["_id"])
+        return sanitized
+
     def get_all_movies(self, limit=50):
         """
         Return movies stored.
         """
-        return list(self.collection.find().limit(limit))
+        return [self._sanitize_movie(m) for m in self.collection.find().limit(limit)]
 
     def get_movie_by_tmdb_id(self, movie_id):
         """
         Get movie by ID of TMDb.
         """
-        return self.collection.find_one({"id": movie_id})
+        movie = self.collection.find_one({"id": movie_id})
+        return self._sanitize_movie(movie)
 
     def insert_movie(self, movie_data):
         """
@@ -65,13 +74,14 @@ class MovieRepository:
         """
         Find a single movie document matching the query.
         """
-        return self.collection.find_one(query)
+        movie = self.collection.find_one(query)
+        return self._sanitize_movie(movie)
 
     def find_movies(self, query={}, limit=50):
         """
         Find multiple movie documents matching the query.
         """
-        return list(self.collection.find(query).limit(limit))
+        return [self._sanitize_movie(m) for m in self.collection.find(query).limit(limit)]
 
     def update_movie(self, query, update_data):
         """

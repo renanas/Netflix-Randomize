@@ -5,6 +5,7 @@ from backend.routers.auth_routers import router as auth_router
 from backend.routers.watchlist_routers import router as watchlist_router
 from backend.routers.rating_routers import router as rating_router
 from backend.routers.playback_routers import router as playback_router
+from backend.routers.recommendation_routers import router as recommendation_router
 from backend.config import API_PREFIX
 
 app = FastAPI(
@@ -22,3 +23,4 @@ app.include_router(auth_router, prefix=API_PREFIX)
 app.include_router(watchlist_router, prefix=API_PREFIX)
 app.include_router(rating_router, prefix=API_PREFIX)
 app.include_router(playback_router, prefix=API_PREFIX)
+app.include_router(recommendation_router, prefix=API_PREFIX)

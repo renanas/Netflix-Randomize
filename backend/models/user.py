@@ -21,10 +21,10 @@ class ViewingHistoryItem(BaseModel):
 
 
 class UserBehavior(BaseModel):
-    viewing_history: List[ViewingHistoryItem]
-    playback_status: Dict[str, int]  # Movie ID (string): pause time (in seconds)
-    ratings: Dict[str, int]  # Movie ID (string): 0 (dislike) or 1 (like)
-    ignored_movies: List[int]  # Movie IDs the user has chosen to ignore
+    viewing_history: Optional[List[ViewingHistoryItem]] = None
+    playback_status: Dict[str, int] = {}  # Movie ID (string): pause time (in seconds)
+    ratings: Dict[str, int] = {}  # Movie ID (string): 0 (dislike) or 1 (like)
+    ignored_movies: List[int] = []  # Movie IDs the user has chosen to ignore
 
 class User(BaseModel):
     email: EmailStr
@@ -40,7 +40,7 @@ class UserCreate(BaseModel):
     plan: str
     country: str
     profile: Profile
-    user_behavior: UserBehavior
+    user_behavior: UserBehavior = UserBehavior()
 
 class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None

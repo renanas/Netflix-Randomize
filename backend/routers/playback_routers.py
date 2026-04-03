@@ -5,13 +5,10 @@ from backend.utils.auth import verify_token
 
 router = APIRouter()
 
-playback_service = None
+# Instantiate service per request to avoid stale state across tests
 
 def get_service():
-    global playback_service
-    if playback_service is None:
-        playback_service = PlaybackService()
-    return playback_service
+    return PlaybackService()
 
 
 @router.post("/playback/play", status_code=200)
