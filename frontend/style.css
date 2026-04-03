@@ -1,0 +1,583 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-color: #e50914;
+    --dark-bg: #141414;
+    --darker-bg: #0f0f0f;
+    --text-light: #f5f5f1;
+    --text-muted: #808080;
+    --accent-color: #ffd700;
+    --success-color: #4caf50;
+    --error-color: #f44336;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--dark-bg);
+    color: var(--text-light);
+    line-height: 1.6;
+}
+
+/* ===== LOGIN PAGE ===== */
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--darker-bg) 0%, #1a1a1a 100%);
+}
+
+.login-container {
+    padding: 20px;
+    max-width: 400px;
+    width: 100%;
+}
+
+.login-box {
+    background: rgba(20, 20, 20, 0.9);
+    border: 1px solid var(--primary-color);
+    border-radius: 10px;
+    padding: 40px;
+    box-shadow: 0 8px 32px rgba(229, 9, 20, 0.2);
+}
+
+.netflix-logo {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.subtitle {
+    text-align: center;
+    color: var(--text-muted);
+    margin-bottom: 30px;
+}
+
+.login-form {
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--text-muted);
+    border-radius: 5px;
+    background-color: var(--darker-bg);
+    color: var(--text-light);
+    font-size: 1em;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 10px rgba(229, 9, 20, 0.3);
+}
+
+.error-message {
+    color: var(--error-color);
+    font-size: 0.9em;
+    margin: 15px 0;
+    padding: 10px;
+    background-color: rgba(244, 67, 54, 0.1);
+    border-radius: 5px;
+    display: none;
+}
+
+.error-message.show {
+    display: block;
+}
+
+.success-message {
+    color: var(--success-color);
+    font-size: 0.9em;
+    margin: 15px 0;
+    padding: 10px;
+    background-color: rgba(76, 175, 80, 0.1);
+    border-radius: 5px;
+    display: none;
+}
+
+.success-message.show {
+    display: block;
+}
+
+.signup-hint {
+    text-align: center;
+    font-size: 0.85em;
+    color: var(--text-muted);
+    margin-top: 20px;
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-login {
+    width: 100%;
+    background-color: var(--primary-color);
+    color: white;
+    margin-top: 10px;
+}
+
+.btn-login:hover {
+    background-color: #cc070f;
+    box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4);
+    transform: translateY(-2px);
+}
+
+.btn-login:active {
+    transform: translateY(0);
+}
+
+.btn-logout {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 8px 16px;
+    font-size: 0.9em;
+}
+
+.btn-logout:hover {
+    background-color: #cc070f;
+}
+
+/* ===== HOME PAGE ===== */
+.home-page {
+    background: linear-gradient(180deg, var(--darker-bg) 0%, #1a1a1a 100%);
+    min-height: 100vh;
+}
+
+.header {
+    background-color: rgba(0, 0, 0, 0.7);
+    border-bottom: 2px solid var(--primary-color);
+    padding: 15px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.netflix-logo-small {
+    font-size: 1.8em;
+    color: var(--primary-color);
+}
+
+.main-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+/* ===== ROULETTE SECTION ===== */
+.roulette-section {
+    background: linear-gradient(135deg, rgba(229, 9, 20, 0.1) 0%, rgba(229, 9, 20, 0.05) 100%);
+    border: 2px solid var(--primary-color);
+    border-radius: 15px;
+    padding: 40px;
+    margin-bottom: 60px;
+    text-align: center;
+}
+
+.roulette-section h2 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    color: var(--primary-color);
+}
+
+.roulette-subtitle {
+    color: var(--text-muted);
+    margin-bottom: 40px;
+    font-size: 1.1em;
+}
+
+.roulette-container {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    margin: 40px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.roulette-wheel {
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    border: 8px solid var(--primary-color);
+    background: conic-gradient(
+        from 0deg,
+        #ff6b6b 0deg 60deg,
+        #4ecdc4 60deg 120deg,
+        #45b7d1 120deg 180deg,
+        #96ceb4 180deg 240deg,
+        #ffeaa7 240deg 300deg,
+        #dfe6e9 300deg 360deg
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 40px rgba(229, 9, 20, 0.3);
+    animation: spinStop 0.5s ease-out;
+    position: relative;
+}
+
+.roulette-wheel.spinning {
+    animation: spin 4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.roulette-center {
+    width: 80px;
+    height: 80px;
+    background: var(--darker-bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 4px solid var(--primary-color);
+    font-size: 1.2em;
+    font-weight: bold;
+    color: var(--accent-color);
+}
+
+.roulette-pointer {
+    position: absolute;
+    top: -15px;
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-top: 25px solid var(--primary-color);
+    z-index: 10;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(2160deg);
+    }
+}
+
+@keyframes spinStop {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(0deg);
+    }
+}
+
+.movie-result {
+    margin: 30px 0;
+    padding: 20px;
+    background: rgba(229, 9, 20, 0.15);
+    border: 2px solid var(--primary-color);
+    border-radius: 10px;
+    opacity: 1;
+    transition: opacity 0.3s;
+}
+
+.movie-result.hidden {
+    display: none;
+    opacity: 0;
+}
+
+.result-content h3 {
+    color: var(--accent-color);
+    margin-bottom: 15px;
+    font-size: 1.3em;
+}
+
+.result-movie {
+    background: var(--darker-bg);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: left;
+}
+
+.result-movie h4 {
+    color: var(--primary-color);
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+.result-movie p {
+    color: var(--text-muted);
+    margin: 5px 0;
+}
+
+.btn-spin {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #cc070f 100%);
+    color: white;
+    padding: 18px 40px;
+    font-size: 1.2em;
+    margin: 20px auto;
+    display: block;
+    box-shadow: 0 8px 25px rgba(229, 9, 20, 0.4);
+}
+
+.btn-spin:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 35px rgba(229, 9, 20, 0.6);
+}
+
+.btn-spin:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: scale(1);
+}
+
+.btn-pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 8px 25px rgba(229, 9, 20, 0.4);
+    }
+    50% {
+        box-shadow: 0 8px 35px rgba(229, 9, 20, 0.8);
+    }
+}
+
+/* ===== RECOMMENDATIONS SECTION ===== */
+.recommendations-section {
+    margin-top: 60px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.section-header h2 {
+    font-size: 1.8em;
+    color: var(--text-light);
+}
+
+.btn-refresh {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-refresh:hover {
+    background-color: #cc070f;
+}
+
+.movies-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+}
+
+.movie-card {
+    background: var(--darker-bg);
+    border: 1px solid var(--text-muted);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+}
+
+.movie-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--primary-color);
+    box-shadow: 0 10px 30px rgba(229, 9, 20, 0.3);
+}
+
+.movie-poster {
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3em;
+    color: white;
+    overflow: hidden;
+    position: relative;
+}
+
+.movie-poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.movie-info {
+    padding: 15px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.movie-title {
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: var(--primary-color);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.movie-rating {
+    font-size: 0.85em;
+    color: var(--accent-color);
+    margin-bottom: 5px;
+}
+
+.movie-genres {
+    font-size: 0.8em;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+    font-size: 1.1em;
+}
+
+/* ===== LOADING OVERLAY ===== */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 1;
+    transition: opacity 0.3s;
+}
+
+.loading-overlay.hidden {
+    display: none;
+    opacity: 0;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid var(--text-muted);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin-loader 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin-loader {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .netflix-logo {
+        font-size: 1.8em;
+    }
+
+    .roulette-section h2 {
+        font-size: 1.8em;
+    }
+
+    .roulette-container {
+        width: 220px;
+        height: 220px;
+    }
+
+    .roulette-wheel {
+        width: 200px;
+        height: 200px;
+    }
+
+    .roulette-center {
+        width: 60px;
+        height: 60px;
+        font-size: 0.9em;
+    }
+
+    .section-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+
+    .movies-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 15px;
+    }
+
+    .movie-card {
+        height: 240px;
+    }
+
+    .movie-poster {
+        height: 150px;
+        font-size: 2em;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-box {
+        padding: 25px;
+    }
+
+    .roulette-section {
+        padding: 25px;
+    }
+
+    .movies-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 10px;
+    }
+}
