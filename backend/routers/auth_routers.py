@@ -6,13 +6,10 @@ from datetime import timedelta
 
 router = APIRouter()
 
-user_repo = None
+# Instantiate repository per request to avoid stale state in unit tests
 
 def get_repo():
-    global user_repo
-    if user_repo is None:
-        user_repo = UserRepository()
-    return user_repo
+    return UserRepository()
 
 @router.post("/login", response_model=dict)
 def login(login_data: LoginRequest):

@@ -3,6 +3,7 @@ from backend.models.user import User, UserCreate, UserUpdate
 from backend.utils.auth import get_password_hash, verify_password
 from bson import ObjectId
 from typing import List, Optional
+from datetime import datetime
 
 class UserRepository:
     def __init__(self):
@@ -102,23 +103,27 @@ class UserRepository:
     def add_to_viewing_history(self, user_id: str, tmdb_id: int) -> bool:
         """
         Add a movie to user's viewing history.
-        Avoids duplicates by checking if already exists.
+        The history is now a list of objects containing movie_id and watched_at timestamp.
+        Avoids duplicates by only pushing when no existing entry for the same movie_id.
         """
         field_path = "user_behavior.viewing_history"
+        # create the history item with current UTC timestamp
+        item = {"movie_id": tmdb_id, "watched_at": datetime.utcnow().isoformat()}
         result = self.collection.update_one(
-            {"_id": ObjectId(user_id), f"{field_path}": {"$ne": tmdb_id}},
-            {"$push": {field_path: tmdb_id}}
+            {"_id": ObjectId(user_id), f"{field_path}.movie_id": {"$ne": tmdb_id}},
+            {"$push": {field_path: item}}
         )
+        # modified_count will be >0 if push happened; matched_count>0 if already present
         return result.modified_count > 0 or result.matched_count > 0
 
     def remove_from_viewing_history(self, user_id: str, tmdb_id: int) -> bool:
         """
-        Remove a movie from user's viewing history.
+        Remove a movie from user's viewing history by movie_id.
         """
         field_path = "user_behavior.viewing_history"
         result = self.collection.update_one(
             {"_id": ObjectId(user_id)},
-            {"$pull": {field_path: tmdb_id}}
+            {"$pull": {field_path: {"movie_id": tmdb_id}}}
         )
         return result.modified_count > 0
 

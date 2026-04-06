@@ -8,13 +8,10 @@ from backend.utils.auth import verify_token
 
 router = APIRouter()
 
-rating_service = None
+# Instantiate service per request to avoid stale state with test monkeypatching
 
 def get_service():
-    global rating_service
-    if rating_service is None:
-        rating_service = RatingService()  
-    return rating_service
+    return RatingService()
 
 
 @router.post("/rating/add", status_code=201)

@@ -1,6 +1,10 @@
 import sys
+import os
 import types
 from fastapi.testclient import TestClient
+
+# ensure project root is available for backend imports
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Inject fake repository modules before importing the app to avoid real DB connections
 fake_user_repo_mod = types.ModuleType("backend.repository.user_repository")
@@ -41,11 +45,19 @@ class FakeUserRepo:
 fake_user_repo_mod.UserRepository = FakeUserRepo
 sys.modules["backend.repository.user_repository"] = fake_user_repo_mod
 
-# minimal fake for movie_repository so imports succeed
+# minimal fake for movie_repository so imports succeed (and other tests can use it)
 fake_movie_repo_mod = types.ModuleType("backend.repository.movie_repository")
 class FakeMovieRepo:
     def __init__(self):
         pass
+
+    def find_movies(self, query={}, limit=50):
+        # basic fake: return no movies except to avoid missing method failures
+        return []
+
+    def find_movie(self, query):
+        return None
+
 fake_movie_repo_mod.MovieRepository = FakeMovieRepo
 sys.modules["backend.repository.movie_repository"] = fake_movie_repo_mod
 
@@ -64,24 +76,42 @@ users_routers.user_repo = FakeUserRepo()
 auth_routers.user_repo = users_routers.user_repo
 
 
+def ensure_fake_repositories():
+    sys.modules["backend.repository.user_repository"] = fake_user_repo_mod
+    sys.modules["backend.repository.movie_repository"] = fake_movie_repo_mod
+
+
 def test_create_user_success():
+    ensure_fake_repositories()
     payload = {
-        "email": "new@example.com",
-        "password": "pass",
-        "plan": "basic",
-        "country": "BR",
+        "email": "renanas@example.com",
+        "password": "renanas",
+        "plan": "Premium",
+        "country": "Brasil",
+
         "profile": {
-            "profile_name": "Main",
-            "avatar": "a.png",
-            "age_rating": "12",
-            "preferred_language": "en",
-            "my_list": []
+            "profile_name": "Renan Silva",
+            "avatar": "avatar5.png",
+            "age_rating": "18+",
+            "preferred_language": "pt-BR",
+
+            "preferences": {
+                "favorite_genres": [35, 18]
+            },
+
+            "my_list": [789, 1122]
         },
+
         "user_behavior": {
-            "viewing_history": [],
-            "playback_status": {},
-            "ratings": {},
-            "favorite_genres": []
+            "viewing_history": [
+                {"movie_id": 1233, "watched_at": "2026-03-09T20:00:00"}
+            ],
+
+            "playback_status": {"789": 152},
+
+            "ratings": {"789": 1, "1122": 0},
+
+            "ignored_movies": []
         }
     }
     resp = client.post("/users", json=payload)
@@ -91,30 +121,59 @@ def test_create_user_success():
 
 
 def test_create_user_conflict():
+    ensure_fake_repositories()
     payload = {
         "email": "exists@example.com",
         "password": "pass",
-        "plan": "basic",
-        "country": "BR",
+        "plan": "Premium",
+        "country": "Brasil",
+
         "profile": {
-            "profile_name": "Main",
-            "avatar": "a.png",
+            "profile_name": "Existing User",
+            "avatar": "avatar.png",
             "age_rating": "12",
             "preferred_language": "en",
+            "preferences": {"favorite_genres": []},
             "my_list": []
         },
+
         "user_behavior": {
             "viewing_history": [],
             "playback_status": {},
             "ratings": {},
-            "favorite_genres": []
+            "ignored_movies": []
         }
     }
     resp = client.post("/users", json=payload)
     assert resp.status_code == 400
 
 
+def test_create_user_minimal():
+    """Test creating a user without user_behavior (should use defaults)."""
+    ensure_fake_repositories()
+    payload = {
+        "email": "minimal@example.com",
+        "password": "pass",
+        "plan": "basic",
+        "country": "BR",
+        "profile": {
+            "profile_name": "Minimal",
+            "avatar": "a.png",
+            "age_rating": "12",
+            "preferred_language": "en",
+            "preferences": {"favorite_genres": []},
+            "my_list": []
+        }
+        # user_behavior omitted, should use UserBehavior() defaults
+    }
+    resp = client.post("/users", json=payload)
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "user_id" in data
+
+
 def test_get_all_users():
+    ensure_fake_repositories()
     resp = client.get("/users")
     assert resp.status_code == 200
     data = resp.json()
@@ -122,22 +181,26 @@ def test_get_all_users():
 
 
 def test_get_user_not_found():
+    ensure_fake_repositories()
     resp = client.get("/users/notfound")
     assert resp.status_code == 404
 
 
 def test_update_user_not_found():
+    ensure_fake_repositories()
     payload = {"plano": "premium"}
     resp = client.put("/users/notfound", json=payload)
     assert resp.status_code == 404
 
 
 def test_delete_user_not_found():
+    ensure_fake_repositories()
     resp = client.delete("/users/notfound")
     assert resp.status_code == 404
 
 
 def test_login_failure():
+    ensure_fake_repositories()
     payload = {"email": "bad@example.com", "password": "x"}
     resp = client.post("/login", json=payload)
     assert resp.status_code == 401

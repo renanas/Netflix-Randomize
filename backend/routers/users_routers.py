@@ -4,13 +4,11 @@ from backend.services.user_service import UserService
 
 router = APIRouter()
 
-user_service = None
+# Instantiate a new service per request to avoid stale global state across tests
+# and ensure test-time monkeypatching of repository modules is applied.
 
 def get_service():
-    global user_service
-    if user_service is None:
-        user_service = UserService()
-    return user_service
+    return UserService()
 
 @router.post("/users", response_model=dict)
 def create_user(user: UserCreate):
@@ -27,6 +25,7 @@ def create_user(user: UserCreate):
         # Email already registered error
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
+        print('users router error create_user', repr(e))
         raise HTTPException(status_code=503, detail=f"Service unavailable: {str(e)}")
 
 @router.get("/users", response_model=list)

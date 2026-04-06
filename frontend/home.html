@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netflix Randomize - Home</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="home-page">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <h1 class="netflix-logo-small">🎬 Netflix Randomize</h1>
+            <button id="logoutBtn" class="btn btn-logout">Sair</button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Roulette Section -->
+        <section class="roulette-section">
+            <h2>Qual filme você vai assistir hoje?</h2>
+            <p class="roulette-subtitle">Clique no botão abaixo e deixe a sorte decidir!</p>
+            
+            <!-- Roulette Wheel -->
+            <div class="roulette-container">
+                <div id="rouletteWheel" class="roulette-wheel">
+                    <div class="roulette-center">
+                        <span id="spinnerText">? ? ?</span>
+                    </div>
+                </div>
+                
+                <!-- Pointer -->
+                <div class="roulette-pointer"></div>
+            </div>
+
+            <!-- Random Movie Result -->
+            <div id="randomMovieResult" class="movie-result hidden">
+                <div class="result-content">
+                    <h3>Seu filme do dia é:</h3>
+                    <div id="resultMovie" class="result-movie"></div>
+                </div>
+            </div>
+
+            <!-- Spin Button -->
+            <button id="spinBtn" class="btn btn-spin btn-pulse">
+                🎲 GIRAR & DESCOBRIR
+            </button>
+        </section>
+
+        <!-- Recommendations Section -->
+        <section class="recommendations-section">
+            <div class="section-header">
+                <h2>Filmes Recomendados para Você</h2>
+                <button id="refreshBtn" class="btn btn-refresh">🔄 Atualizar</button>
+            </div>
+
+            <div id="moviesContainer" class="movies-grid">
+                <div class="loading">Carregando filmes...</div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+        <p>Carregando...</p>
+    </div>
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script src="script-home.js"></script>
+</body>
+</html>

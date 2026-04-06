@@ -10,13 +10,10 @@ from backend.utils.auth import verify_token
 
 router = APIRouter()
 
-watchlist_service = None
+# Instantiate service per request to avoid stale state across tests
 
 def get_service():
-    global watchlist_service
-    if watchlist_service is None:
-        watchlist_service = WatchlistService()
-    return watchlist_service
+    return WatchlistService()
 
 
 @router.post("/watchlist/add", status_code=201)
