@@ -1,7 +1,20 @@
 from fastapi import APIRouter, HTTPException
 from backend.services.tmdb_service import fetch_popular_movies, fetch_movie_details
+from backend.repository.movie_repository import MovieRepository
 
 router = APIRouter()
+
+@router.get("/movies")
+def get_movies(limit: int = 50):
+    """
+    Get all movies from the database.
+    """
+    try:
+        repo = MovieRepository()
+        movies = repo.get_all_movies(limit)
+        return {"movies": movies}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/fetch-popular")
 def get_popular_movies(page: int = 1):

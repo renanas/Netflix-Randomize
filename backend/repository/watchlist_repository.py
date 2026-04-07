@@ -21,54 +21,63 @@ class WatchlistRepository:
         if not movie:
             raise ValueError(f"Movie with TMDB ID {tmdb_id} not found in database")
 
-        # Check if movie is already in the user's watchlist
-        user = self.users_collection.find_one(
-            {
-                "_id": ObjectId(user_id),
-                "profile.my_list": tmdb_id
-            }
-        )
-        if user:
-            raise ValueError(f"Movie {tmdb_id} is already in your watchlist")
+        try:
+            # Check if movie is already in the user's watchlist
+            user = self.users_collection.find_one(
+                {
+                    "_id": ObjectId(user_id),
+                    "profile.my_list": tmdb_id
+                }
+            )
+            if user:
+                raise ValueError(f"Movie {tmdb_id} is already in your watchlist")
 
-        # Add movie to watchlist
-        result = self.users_collection.update_one(
-            {"_id": ObjectId(user_id)},
-            {"$push": {"profile.my_list": tmdb_id}}
-        )
-        return result.modified_count > 0
+            # Add movie to watchlist
+            result = self.users_collection.update_one(
+                {"_id": ObjectId(user_id)},
+                {"$push": {"profile.my_list": tmdb_id}}
+            )
+            return result.modified_count > 0
+        except Exception:
+            raise ValueError("Invalid user ID")
 
     def remove_movie_from_watchlist(self, user_id: str, tmdb_id: int) -> bool:
         """
         Remove a movie from user's watchlist.
         Returns True if successful, raises ValueError if movie not in list.
         """
-        # Check if movie is in the user's watchlist
-        user = self.users_collection.find_one(
-            {
-                "_id": ObjectId(user_id),
-                "profile.my_list": tmdb_id
-            }
-        )
-        if not user:
-            raise ValueError(f"Movie {tmdb_id} not found in your watchlist")
+        try:
+            # Check if movie is in the user's watchlist
+            user = self.users_collection.find_one(
+                {
+                    "_id": ObjectId(user_id),
+                    "profile.my_list": tmdb_id
+                }
+            )
+            if not user:
+                raise ValueError(f"Movie {tmdb_id} not found in your watchlist")
 
-        # Remove movie from watchlist
-        result = self.users_collection.update_one(
-            {"_id": ObjectId(user_id)},
-            {"$pull": {"profile.my_list": tmdb_id}}
-        )
-        return result.modified_count > 0
+            # Remove movie from watchlist
+            result = self.users_collection.update_one(
+                {"_id": ObjectId(user_id)},
+                {"$pull": {"profile.my_list": tmdb_id}}
+            )
+            return result.modified_count > 0
+        except Exception:
+            raise ValueError("Invalid user ID")
 
     def get_watchlist(self, user_id: str) -> List[int]:
         """
         Get all movie IDs from user's watchlist.
         Returns an empty list if user has no movies.
         """
-        user = self.users_collection.find_one(
-            {"_id": ObjectId(user_id)},
-            {"profile.my_list": 1}
-        )
+        try:
+            user = self.users_collection.find_one(
+                {"_id": ObjectId(user_id)},
+                {"profile.my_list": 1}
+            )
+        except Exception:
+            return []
         if not user or "profile" not in user or "my_list" not in user["profile"]:
             return []
         return user["profile"]["my_list"]
